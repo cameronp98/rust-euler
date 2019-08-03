@@ -1,37 +1,42 @@
-use std::collections::HashSet;
+use bit_vec::BitVec;
 
-pub struct PrimeSieve {
-    non_primes: HashSet<u64>,
+/// Test for primes using sieve of eratosthenes combined with brute force search
+pub struct PrimeTester {
+    bitvec: BitVec,
 }
 
-impl PrimeSieve {
-    fn new() -> PrimeSieve {
-        PrimeSieve {
-            non_primes: HashSet::new(),
-        }
-    }
+impl PrimeTester {
+    pub fn new(max_prime : usize) -> PrimeTester {
+        let mut bitvec = BitVec::from_elem(max_prime, true);
 
-    fn is_prime(&mut self, n: u64) -> bool {
-        for i in 2..n {
-            let mut j = 1;
-            while i * j < n {
-                self.non_primes.insert(i * j);
-                j += 1;
+        bitvec.set(0, false);
+        bitvec.set(1, false);
+
+        for i in 2 .. 1 + (max_prime as f64).sqrt() as usize {
+            if bitvec[i] {
+                for j in i.. {
+                    if i * j >= max_prime {
+                        break;
+                    }
+                    bitvec.set(i * j, false);
+                }
             }
         }
 
-        self.non_primes.contains(&n)
+        PrimeTester {
+            bitvec,
+        }
+    }
+
+    pub fn is_prime(&self, n: usize) -> bool {
+        self.bitvec.get(n).unwrap_or(false)
     }
 }
 
-pub fn is_prime(n: u64) -> bool {
-    PrimeSieve::new().is_prime(n)
-}
-
 // calculate the prime factors of number `n`
-pub fn factors(n: u64) -> Vec<u64> {
-    let mut sieve = PrimeSieve::new();
-    let mut primes = (2..).filter(|&n| sieve.is_prime(n));
+pub fn factors(n: usize) -> Vec<usize> {
+    let mut tester = PrimeTester::new(1 + (n as f32).sqrt() as usize);
+    let mut primes = (2..).filter(|&n| tester.is_prime(n));
 
     let mut factors = Vec::new();
 
@@ -53,10 +58,24 @@ pub fn factors(n: u64) -> Vec<u64> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn is_prime_works() {
-        use super::is_prime;
+    fn prime_sieve_works() {
+        use super::PrimeTester;
 
-        let primes = vec![2, 3, 5, 7, 9, 11, 127, 151, 211, 251];
-        assert!(primes.iter().all(|&p| is_prime(p)));
+        let mut sieve = PrimeTester::new(252);
+
+        let primes = vec![2, 3, 5, 7, 11, 13, 127, 151, 211, 251];
+
+        assert!(primes.iter().all(|&p| sieve.is_prime(p)))
+    }
+
+    #[test]
+    fn generate_primes() {
+        use super::PrimeTester;
+
+        let sieve = PrimeTester::new(20);
+
+        let primes: Vec<usize> = (0..=20).filter(|&n| sieve.is_prime(n)).collect(); 
+
+        assert_eq!(primes, vec![2, 3, 5, 7, 11, 13, 17, 19]);
     }
 }
