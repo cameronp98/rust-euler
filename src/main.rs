@@ -6,8 +6,9 @@ use std::io::{self, Write};
 use std::path::Path;
 use threadpool::ThreadPool;
 
-const PROBLEM_DESCRIPTION_WIDTH: usize = 40;
+const PROBLEM_DESCRIPTION_WIDTH: usize = 60;
 const BASE_URL: &str = "https://projecteuler.net";
+const MAX_PROBLEM_ID: usize = 667;
 
 // program error type
 #[derive(Debug)]
@@ -102,10 +103,8 @@ fn create_empty_solution(id: usize) -> Result<()> {
 fn main() {
     let pool = ThreadPool::default();
 
-    let ids = 1..100;
-
     // concurrently create an empty solution for each program
-    for id in ids {
+    for id in 0..MAX_PROBLEM_ID {
         pool.execute(move || match create_empty_solution(id) {
             Ok(()) => println!("empty solution created {}", id),
             Err(e) => eprintln!("error: {}", e),
