@@ -7,7 +7,7 @@ Run `$ cargo run` to download the problems into the examples directory
 
 An empty solution program looks something like this:
 
-```
+```rust
 /*
 [https://projecteuler.net/problem=3]
 
