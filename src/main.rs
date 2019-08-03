@@ -89,7 +89,7 @@ fn create_empty_solution(id: usize) -> Result<()> {
     let mut file = File::create(path)?;
     writeln!(
         file,
-        "/*\n[{}]\n{}\n\n{}\n*/\n\n{}",
+        "/*\n[{}]\n\n{}\n\n{}\n*/\n\n{}",
         url,
         problem.title,
         textwrap::fill(&problem.description, PROBLEM_DESCRIPTION_WIDTH),
