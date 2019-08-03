@@ -6,7 +6,9 @@ pub struct PrimeSieve {
 }
 
 impl PrimeSieve {
+    /// create a new prime sieve with upper bound `max_prime`
     pub fn new(max_prime : usize) -> PrimeSieve {
+        // basically copied from https://contain-rs.github.io/bit-vec/bit_vec/#examples
         let mut bitvec = BitVec::from_elem(max_prime, true);
 
         bitvec.set(0, false);
@@ -28,6 +30,7 @@ impl PrimeSieve {
         }
     }
 
+    /// test if a number is prime based on the generated sieve
     pub fn is_prime(&self, n: usize) -> bool {
         self.bitvec.get(n).unwrap_or(false)
     }
