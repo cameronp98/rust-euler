@@ -1,5 +1,7 @@
 # rust-euler
 
+[![Build Status](https://travis-ci.com/cameronp98/rust-euler.svg?branch=master)](https://travis-ci.com/cameronp98/rust-euler)
+
 Easily download problems from project euler and generate an empty solution program for each.
 Some common functions are provided, e.g. prime factorization.
 
