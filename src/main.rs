@@ -1,5 +1,5 @@
 use select::document::Document;
-use select::predicate::Class;
+use select::predicate::{Class, Name};
 use std::fmt;
 use std::fs::File;
 use std::io::{self, Write};
@@ -41,18 +41,33 @@ fn get_url(id: usize) -> String {
     format!("{}/problem={}", BASE_URL, id)
 }
 
-fn fetch_problem(id: usize, url: &str) -> Result<String> {
+struct Problem {
+    title: String,
+    description: String,
+}
+
+fn fetch_problem(id: usize, url: &str) -> Result<Problem> {
     // fetch the problem page html from projecteuler
     let res = reqwest::get(url).map_err(|_| Error::FetchProblemFailed(id))?;
 
+    // parse the html
+    let document = Document::from_read(res).map_err(|_| Error::ParseHtml(id))?;
+
     // extract the description `<div class="problem_content">{description elements}</div>`
-    let problem = Document::from_read(res)
-        .map_err(|_| Error::ParseHtml(id))?
+    let description = document
         .find(Class("problem_content"))
         .map(|node| node.text())
-        .collect();
+        .collect::<String>()
+        .trim()
+        .to_string();
+    
+    // extract the title `<h2>{title}<h2>`
+    let title = document.find(Name("h2")).next().ok_or(Error::ParseHtml(id))?.text();
 
-    Ok(problem)
+    Ok(Problem {
+        title,
+        description,
+    })
 }
 
 // fetch the descrption for a problem and create an empty solution program
@@ -74,9 +89,10 @@ fn create_empty_solution(id: usize) -> Result<()> {
     let mut file = File::create(path)?;
     writeln!(
         file,
-        "/*\n[{}]\n{}\n*/\n\n{}",
+        "/*\n[{}]\n{}\n\n{}\n*/\n\n{}",
         url,
-        textwrap::fill(&problem, PROBLEM_DESCRIPTION_WIDTH),
+        problem.title,
+        textwrap::fill(&problem.description, PROBLEM_DESCRIPTION_WIDTH),
         include_str!("../examples/empty_solution.rs")
     )?;
 
@@ -86,7 +102,7 @@ fn create_empty_solution(id: usize) -> Result<()> {
 fn main() {
     let pool = ThreadPool::default();
 
-    let ids = 0..100;
+    let ids = 1..100;
 
     // concurrently create an empty solution for each program
     for id in ids {
