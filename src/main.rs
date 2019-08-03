@@ -93,7 +93,7 @@ fn create_empty_solution(id: usize) -> Result<()> {
         url,
         problem.title,
         textwrap::fill(&problem.description, PROBLEM_DESCRIPTION_WIDTH),
-        include_str!("../examples/empty_solution.rs")
+        include_str!("../examples/solution_template.rs"),
     )?;
 
     Ok(())

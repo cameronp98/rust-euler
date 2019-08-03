@@ -5,7 +5,7 @@ Easily download problems from project euler and generate an empty solution progr
 Run `$ cargo run` to download the problems into the examples directory
 
 
-An empty solution program looks something like this:
+The empty solution program is based on `examples/solution_templates.rs` and looks something like this:
 
 ```rust
 /*
